@@ -8,13 +8,7 @@ client = MongoClient('mongodb://localhost:27017/')
 db = client['2kdb']['players']
 with open('playerLinks') as f:
     links = f.readlines()
-url = "file:///Users/Allen/legendary-goggles/hgrant.html"
-
-html = urllib2.urlopen(url);
-soup = BeautifulSoup(html, 'html.parser')
-
-
-
+counter = 0;
 for link in links:
         try:
             link = link.replace("\n", "")
@@ -30,13 +24,16 @@ for link in links:
             # Look through blocks of attributes and parse out rating and name of rating
             for attributes in soup.find_all(class_="attribute-list"):
                 for attributes in attributes.find_all("li"):
-                    stats = str(attributes.text)
-
+                    #2kmtcentral has some hidden stuff when you shrink the screen
+                    stats = attributes.text.replace("([Dd]ef.|[Oo]ff).", "")
+                    print stats
                     statVal = int(stats[:2]) #Actual rating i.e. 89
                     statName = str(stats[3:]) #Type of stat i.e. contested 3
                     playerObj[statName] = statVal
             db.insert_one(playerObj)
             print playerObj["name"]
+            counter +=1
+            print counter + " players added out of " + links.length "players"
         except Exception,e:
             print str(e)
             print link.split("/")[6] + " had an error"
