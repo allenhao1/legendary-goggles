@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import urllib2
 import pymongo
 from pymongo import MongoClient
+import re
 
 
 client = MongoClient('mongodb://localhost:27017/')
@@ -25,15 +26,15 @@ for link in links:
             for attributes in soup.find_all(class_="attribute-list"):
                 for attributes in attributes.find_all("li"):
                     #2kmtcentral has some hidden stuff when you shrink the screen
-                    stats = attributes.text.replace("([Dd]ef.|[Oo]ff).", "")
-                    print stats
+                    regex = "([Dd]ef|[Oo]ff)\." #Match def. or off. or uppercase versions
+                    stats = re.sub(regex, "", attributes.text)
                     statVal = int(stats[:2]) #Actual rating i.e. 89
                     statName = str(stats[3:]) #Type of stat i.e. contested 3
                     playerObj[statName] = statVal
             db.insert_one(playerObj)
             print playerObj["name"]
             counter +=1
-            print counter + " players added out of " + links.length "players"
+            print str(counter) + " players added out of " + str(len(links)) + " players"
         except Exception,e:
             print str(e)
             print link.split("/")[6] + " had an error"
