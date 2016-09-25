@@ -27,7 +27,7 @@ for link in links:
             playerObj["name"] = soup.find("table").find("td").text
             playerObj["overall"] = soup.find_all(class_="overall")[0].text
 
-            Look through blocks of attributes and parse out rating and name of rating
+            # Look through blocks of attributes and parse out rating and name of rating
             for attributes in soup.find_all(class_="attribute-list"):
                 for attributes in attributes.find_all("li"):
                     stats = str(attributes.text)
@@ -39,4 +39,4 @@ for link in links:
             print playerObj["name"]
         except Exception,e:
             print str(e)
-            print link.split("/")[6] + " had an error" 
+            print link.split("/")[6] + " had an error"
