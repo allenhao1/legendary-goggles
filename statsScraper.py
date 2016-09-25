@@ -19,9 +19,9 @@ for link in links:
             soup = BeautifulSoup(html, 'html.parser')
 
             #Get initial data
-            playerObj["_id"] = link.split("/")[5]
+            playerObj["_id"] = int(link.split("/")[5])
             playerObj["name"] = soup.find("table").find("td").text
-            playerObj["overall"] = soup.find_all(class_="overall")[0].text
+            playerObj["overall"] = int(soup.find_all(class_="overall")[0].text)
 
             # Look through blocks of attributes and parse out rating and name of rating
             for attributes in soup.find_all(class_="attribute-list"):
