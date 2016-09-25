@@ -5,13 +5,30 @@ import pymongo
 from pymongo import MongoClient
 import re
 
-#TODO add optional adding by id
-
 client = MongoClient('mongodb://localhost:27017/')
 db = client['2kdb']['players']
 
-#Both Nene's, 1016 Bosh and 2328 Kyrie don't work
-for link in links:
+#Both Nene's, 1016 Bosh and 2328 Kyrie don't work. Have to manually add
+indexUrl = "http://www.2kmtcentral.com/17/players/page/"
+playerLinks = []
+valid = True
+x = 0
+while(valid):
+        request = requests.get(indexUrl + str(x))
+        html = request.text;
+        soup = BeautifulSoup(html, 'html.parser')
+        content = soup.find_all( 'a', class_='name', href=True)
+        if len(content) == 0:
+            print "No more players"
+            valid = False
+            break
+        # print content
+        for a in content:
+            url = a['href'].encode('utf-8') #Have to encode and decode because Nene has a circumflex in his name
+            playerLinks.append(url)
+        print "Done with " + str(x+1) + " pages"
+        x+=1
+for link in playerLinks:
         try:
             link = link.replace("\n", "")
             playerObj = {}
