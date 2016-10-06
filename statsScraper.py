@@ -1,28 +1,43 @@
 # coding: latin-1
 from bs4 import BeautifulSoup
 import requests
-import pymongo
-from pymongo import MongoClient
 import re
+import urllib2
+from db import db
 
 #TODO add optional adding by id
 
-client = MongoClient('mongodb://localhost:27017/')
-db = client['2kdb']['players']
 
+#read links
+playerLinks = open("playerLinks", "r")
+
+# link = "file:///Users/Allen/legendary-goggles/hgrant.html"
+
+# html = urllib2.urlopen(link)
+positionConvert = {"PG": 1, "SG" : 2, "SF" :3, "PF" : 4, "C" : 5 }
 #Both Nene's, 1016 Bosh and 2328 Kyrie don't work
-for link in links:
+playerErr = []
+for link in playerLinks:
         try:
-            link = link.replace("\n", "")
-            playerObj = {}
             html = requests.get(link).text
             soup = BeautifulSoup(html, 'html.parser')
-
-            #Get initial data
+            playerObj = {}
             playerObj["_id"] = int(link.split("/")[5])
-            playerObj["name"] = soup.find("table").find("td").text
-            playerObj["overall"] = int(soup.find_all(class_="overall")[0].text)
-
+            playerObj["Name"] = str(soup.find("table").find("td").text)
+            playerObj["Overall"] = int(soup.find_all(class_="overall")[0].text)
+            table = soup.find("table").find_all("td")
+            pos = str(table[4].text.replace(u'\ufeff', '').encode()).split("/")
+            playerObj["Position"] = int(positionConvert[str(pos[0]).strip()])
+            if len(pos) == 2:
+                playerObj["Secondary position"] = int(positionConvert[str(pos[1]).strip()])
+            #some bs4 tables get wonky
+            for elem in soup(text=re.compile(r'[5-7]\'1?[0-9]\"')):
+                heightStr =  elem.parent.text
+                break
+            heightStr = re.split("[^0-9]", heightStr)
+            feet = heightStr[0]
+            inches = heightStr[1]
+            playerObj["Height"] = int(feet) * 12 + int(inches)
             # Look through blocks of attributes and parse out rating and name of rating
             for attributes in soup.find_all(class_="attribute-list"):
                 for attributes in attributes.find_all("li"):
@@ -32,10 +47,16 @@ for link in links:
                     statVal = int(stats[:2]) #Actual rating i.e. 89
                     statName = str(stats[3:]) #Type of stat i.e. contested 3
                     playerObj[statName] = statVal
-            db.insert_one(playerObj)
-            print playerObj["name"]
+            # db.insert_one(playerObj)
             counter +=1
-            print str(counter) + " players added out of " + str(len(links)) + " players"
+            if counter % 100 == 0:
+                print str(counter) + " players added out of " + str(totalPlayers) + " players"
         except Exception,e:
+            playerErr.append(link);
             print str(e)
-            print link.split("/")[6] + " had an error"
+            # print link.split("/")[6] + " had an error"
+            print link
+print str(counter) + " players added out of " + str(totalPlayers) + " players"
+for link in playerErr:
+    print link;
+playerLinks.close()

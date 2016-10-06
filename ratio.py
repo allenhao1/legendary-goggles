@@ -20,10 +20,6 @@ for player in cursor:
         if not divisorPrinted:
             divisorPrinted = True
         avgStats /= divisor
-        # print avgStats
-        # print avgStats
-        # print int(player["overall"])
-        # print avgStats / double(player["overall"]),
         ratio = avgStats / float(player["overall"])
         playerObj = {
             "ratio" : round(ratio, 3),
