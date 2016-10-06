@@ -6,7 +6,7 @@ import re
 indexUrl = "http://www.2kmtcentral.com/17/players/page/"
 handle = open("playerLinks", "w")
 valid = True
-x = 33
+x = 0
 while(valid):
         request = requests.get(indexUrl + str(x))
         html = request.text;
