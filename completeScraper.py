@@ -51,9 +51,9 @@ for link in playerLinks:
         else:
             pos = soup.find(class_='table-striped').find_all('td')[3]
             positions = pos.text.split('/')
-            playerObj['Position'] = positions[0]
+            playerObj['Position'] = positions[0].strip()
             if len(positions) > 1 :
-                playerObj['Secondary position'] = positions[1]
+                playerObj['Secondary position'] = positions[1].replace(u'\ufeff', '').strip() # Get rid of feff 
         # some bs4 tables get wonky
         for elem in soup(text=re.compile(r'[5-7]\'1?[0-9]\"')):
             heightStr =  elem.parent.text
@@ -76,7 +76,7 @@ for link in playerLinks:
         playerObjList.append(playerObj)
         counter +=1
         if counter % 100 == 0:
-            print str(counter) + " players added out of " + totalPlayers 
+            print str(counter) + " players added out of " + totalPlayers
     except Exception, e:
         playerErr.append(link);
         print str(e)
