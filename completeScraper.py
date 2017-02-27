@@ -38,6 +38,8 @@ for link in playerLinks:
         playerObj = {}
         playerObj["_id"] = int(link.split("/")[5])
         playerObj["Name"] = str(soup.find("table").find("td").text.encode('UTF-8'))
+        if player['Name'][:3] == "Nen":
+            player['Name'] = "Nene"
         playerObj["Overall"] = int(soup.find_all(class_="overall")[0].text)
         pos = soup.find("span", "position-primary")
         # # Onyx cards don't have position-primary. Have to check old school.

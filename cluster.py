@@ -8,7 +8,7 @@ from pprint import pprint
 from db import db
 
 players = []
-positionConvert = {"PG" : 1, "SG" : 2, "SF" : 3, "PF" : 4, "C" : 5}
+positionConvert = {"PG" : 1, "SG" : 2, "SF" : 3, "PF" : 4, "C" : 5, "N/A" : -1}
 
 playersDB = db.find()
 
@@ -16,15 +16,13 @@ for player in playersDB:
     player["Position"] = positionConvert[player["Position"]]
     if "Secondary position" in player:
         player["Secondary position"] = positionConvert[player["Secondary position"]]
-    else:
-        player["Secondary position"] = -1
-	if player['Overall'] > 40:
-		players.append(player)
-	# print data
+    if player['Name'][:3] == "Nen":
+        player['Name'] = "Nene"
+    if player['Overall'] > 40:
+        players.append(player)
+# print data
+print len(players)
 
-for player in players:
-	if player['Name'][:3] == "Nen":
-		player['Name'] = "Nene"
 
 df = pd.DataFrame(players)
 
@@ -50,7 +48,6 @@ df = df.ix[:, cols]
 # 	overall = player['Overall']
 df_noIDs = df.drop(['_id'],1)
 print df_noIDs
-print df_noIDs[df_noIDs.duplicated(keep=False)]
 
 
 # pd.options.display.mpl_style = 'default' #load matplotlib for plotting
