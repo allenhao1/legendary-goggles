@@ -54,7 +54,6 @@ for link in playerLinks:
                 pos = soup.find(class_='table-striped').find_all('td')[3]
             else:
                 pos = soup.find(class_='table-striped').find_all('td')[4]
-            print pos
 
             positions = pos.text.split('/')
             playerObj['Position'] = positions[0].replace(u'\ufeff', '').strip()
