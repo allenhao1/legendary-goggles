@@ -5,16 +5,14 @@ import requests
 from db import db
 import re
 import sys
-import pymongo
+from pymongo import MongoClient
 
-client = pymongo.MongoClient('mongodb://localhost:27017/')
-db = client['2kdb']['try2']
+playerErr = []
 
 indexUrl = "http://www.2kmtcentral.com/17/players/page/"
 playerLinks = []
 valid = True
 x = 0
-playerErr = []
 while(valid):
     request = requests.get(indexUrl + str(x))
     html = request.text;
@@ -49,11 +47,17 @@ for link in playerLinks:
             if secondary != None:
                 playerObj["Secondary position"] = secondary.text
         else:
-            pos = soup.find(class_='table-striped').find_all('td')[3]
+            posLabel = pos = soup.find(class_='table-striped').find_all('th')[3]
+            if pos.text == 'Position': # Dynamic duos may mess up the order
+                pos = soup.find(class_='table-striped').find_all('td')[3]
+            else:
+                pos = soup.find(class_='table-striped').find_all('td')[4]
+            print pos
+
             positions = pos.text.split('/')
-            playerObj['Position'] = positions[0].strip()
+            playerObj['Position'] = positions[0].replace(u'\ufeff', '').strip()
             if len(positions) > 1 :
-                playerObj['Secondary position'] = positions[1].replace(u'\ufeff', '').strip() # Get rid of feff 
+                playerObj['Secondary position'] = positions[1].replace(u'\ufeff', '').strip() # Get rid of feff
         # some bs4 tables get wonky
         for elem in soup(text=re.compile(r'[5-7]\'1?[0-9]\"')):
             heightStr =  elem.parent.text

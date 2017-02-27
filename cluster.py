@@ -1,76 +1,64 @@
+import matplotlib.pyplot as plt, pandas as pd, numpy as np, matplotlib as mpl, requests, time
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import scale
+from scipy.spatial.distance import cdist, pdist, euclidean
 from sklearn.cluster import KMeans
+from sklearn import metrics
+from pprint import pprint
 from db import db
-import numpy as np
-# import matplotlib.pyplot as plt
-# from mpl_toolkits.mplot3d import Axes3D
 
-from sklearn.cluster import KMeans
-from sklearn import datasets
+players = []
+positionConvert = {"PG" : 1, "SG" : 2, "SF" : 3, "PF" : 4, "C" : 5}
 
-np.random.seed(5)
-uselessStats = set(["Hustle", "Pick & roll defense IQ", "Passing vision", "_id", "name", "overall", "Pass perception", "Shot IQ", "On-ball defense IQ", "Low post defense IQ"])
-# centers = [[1, 1], [-1, -1], [1, -1]]
-cluster = db.find()
-X = []
-for player in cluster:
-    playerObj = []
-    for prop in player:
-        if(not prop in uselessStats):
-            playerObj.append(player[prop])
-    X.append(playerObj)
-kmeans = KMeans(n_clusters=2, random_state=0).fit(X)
+playersDB = db.find()
 
-print kmeans
+for player in playersDB:
+    player["Position"] = positionConvert[player["Position"]]
+    if "Secondary position" in player:
+        player["Secondary position"] = positionConvert[player["Secondary position"]]
+    else:
+        player["Secondary position"] = -1
+	if player['Overall'] > 40:
+		players.append(player)
+	# print data
 
-estimators = {'k_means_iris_3': KMeans(n_clusters=3),
-              'k_means_iris_8': KMeans(n_clusters=8),
-              'k_means_iris_bad_init': KMeans(n_clusters=3, n_init=1,
-                                              init='random')}
-#
-#
-# fignum = 1
-# for name, est in estimators.items():
-#     fig = plt.figure(fignum, figsize=(4, 3))
-#     plt.clf()
-#     ax = Axes3D(fig, rect=[0, 0, .95, 1], elev=48, azim=134)
-#
-#     plt.cla()
-#     est.fit(X)
-#     labels = est.labels_
-#
-#     ax.scatter(X[:, 3], X[:, 0], X[:, 2], c=labels.astype(np.float))
-#
-#     ax.w_xaxis.set_ticklabels([])
-#     ax.w_yaxis.set_ticklabels([])
-#     ax.w_zaxis.set_ticklabels([])
-#     ax.set_xlabel('Petal width')
-#     ax.set_ylabel('Sepal length')
-#     ax.set_zlabel('Petal length')
-#     fignum = fignum + 1
-#
-# # Plot the ground truth
-# fig = plt.figure(fignum, figsize=(4, 3))
-# plt.clf()
-# ax = Axes3D(fig, rect=[0, 0, .95, 1], elev=48, azim=134)
-#
-# plt.cla()
-#
-# for name, label in [('Setosa', 0),
-#                     ('Versicolour', 1),
-#                     ('Virginica', 2)]:
-#     ax.text3D(X[y == label, 3].mean(),
-#               X[y == label, 0].mean() + 1.5,
-#               X[y == label, 2].mean(), name,
-#               horizontalalignment='center',
-#               bbox=dict(alpha=.5, edgecolor='w', facecolor='w'))
-# # Reorder the labels to have colors matching the cluster results
-# y = np.choose(y, [1, 2, 0]).astype(np.float)
-# ax.scatter(X[:, 3], X[:, 0], X[:, 2], c=y)
-#
-# ax.w_xaxis.set_ticklabels([])
-# ax.w_yaxis.set_ticklabels([])
-# ax.w_zaxis.set_ticklabels([])
-# ax.set_xlabel('Petal width')
-# ax.set_ylabel('Sepal length')
-# ax.set_zlabel('Petal length')
-# plt.show()
+for player in players:
+	if player['Name'][:3] == "Nen":
+		player['Name'] = "Nene"
+
+df = pd.DataFrame(players)
+
+# Rearrange columns
+cols = list(df)
+cols.insert(0, cols.pop(cols.index('Overall')))
+df = df.ix[:, cols]
+cols.insert(0, cols.pop(cols.index('Height')))
+df = df.ix[:, cols]
+cols.insert(0, cols.pop(cols.index('Secondary position')))
+df = df.ix[:, cols]
+cols.insert(0, cols.pop(cols.index('Position')))
+df = df.ix[:, cols]
+cols.insert(0, cols.pop(cols.index('_id')))
+df = df.ix[:, cols]
+cols.insert(0, cols.pop(cols.index('Name')))
+df = df.ix[:, cols]
+#print df
+# df.to_csv('players.csv')
+
+# for player in players:
+# 	name = player['Name']
+# 	overall = player['Overall']
+df_noIDs = df.drop(['_id'],1)
+print df_noIDs
+print df_noIDs[df_noIDs.duplicated(keep=False)]
+
+
+# pd.options.display.mpl_style = 'default' #load matplotlib for plotting
+# plt.style.use('ggplot') #im addicted to ggplot. so pretty.
+# mpl.rcParams['font.family'] = ['Bitstream Vera Sans']
+
+# df = pd.read_json("players.json")
+# print df
+# saveNames = df['Name']
+# df = df.drop(['Name'],1)
+# print df
