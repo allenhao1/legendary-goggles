@@ -82,7 +82,7 @@ for link in playerLinks:
         playerObjList.append(playerObj)
         counter +=1
         if counter % 100 == 0:
-            print str(counter) + " players added out of " + totalPlayers
+            print str(counter) + " players added out of " + str(totalPlayers)
     except Exception, e:
         playerErr.append(link);
         print str(e)
