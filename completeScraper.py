@@ -42,10 +42,10 @@ for link in playerLinks:
         pos = soup.find("span", "position-primary")
         # # Onyx cards don't have position-primary. Have to check old school.
         if pos != None:
-            playerObj["Position"] = pos.text
+            playerObj["Position"] = pos.text.replace(u'\ufeff', '').strip()
             secondary = soup.find("sup", "position-secondary")
             if secondary != None:
-                playerObj["Secondary position"] = secondary.text
+                playerObj["Secondary position"] = secondary.text.replace(u'\ufeff', '').strip()
         else:
             posLabel = pos = soup.find(class_='table-striped').find_all('th')[3]
             if pos.text == 'Position': # Dynamic duos may mess up the order
