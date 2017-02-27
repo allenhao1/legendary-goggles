@@ -14,8 +14,7 @@ playersDB = db.find()
 
 for player in playersDB:
     player["Position"] = positionConvert[player["Position"]]
-    if "Secondary position" in player:
-        player["Secondary position"] = positionConvert[player["Secondary position"]]
+    player["Secondary position"] = positionConvert[player["Secondary position"]]
     if player['Name'][:3] == "Nen":
         player['Name'] = "Nene"
     if player['Overall'] > 40:
