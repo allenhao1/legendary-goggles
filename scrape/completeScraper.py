@@ -2,10 +2,12 @@
 #coding: latin-1
 from bs4 import BeautifulSoup
 import requests
-from db import db
 import re
 import sys
 from pymongo import MongoClient
+
+client = MongoClient('mongodb://localhost:27017/')
+db = client['2kdb']['try2']
 
 playerErr = []
 
